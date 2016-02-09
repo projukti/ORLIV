@@ -22,7 +22,7 @@ echo "<option value=''>Select Branch</option>";
 						$branch_code = $result_arr['branch_code'];
 						$branch_name = $result_arr['branch_name'];
 						
-                        echo "<option value='$branch_code'>$branch_name</option>";
+                        echo "<option value='$branch_code'>$branch_name  ($branch_code)</option>";
 					}
 				}
 			

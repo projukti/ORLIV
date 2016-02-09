@@ -87,39 +87,6 @@
 <title>LOGIN</title>
 
 <link href="css/globalstyle.css" rel="stylesheet" type="text/css" />
-<!----------------------validation----------------------------->
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/jquery.validate.min.js"></script> 
-<script type="text/javascript">
-$(document).ready(function(){
-
-
-$("#login").validate({
-rules: {
-username: {
-required: true
-},
-password: {
-required: true,
-}
-
-}, //end rules
-messages: {
-
-username: {
-required: "<br /> Please enter Username."
-},
-password: {
-required: "<br /> Please enter password.",
-}
-
-
-} //end messages
-
-}); //end validate
-});
-</script>
-<!----------------------validation----------------------------->
 </head>
 
 <body>

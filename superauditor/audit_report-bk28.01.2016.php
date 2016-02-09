@@ -16,14 +16,22 @@
 ?>
 <?php
 ini_set ( 'max_execution_time', 12000000); 
+
+if(isset($_GET['msg'])) { 
+$msg_success = $_GET['msg'];
+}
+
 if (isset($_REQUEST['mode'])&&$_REQUEST['mode']=='add')
 {
 
-                    $image = md5(time()).str_replace(' ', '-', $_FILES['upload']['name']);
+					//$branch_code = $_POST['branch_code'];
+					
+					
+                    $image = str_replace(' ', '-', $_FILES['upload']['name']);
 
 					$file= mysql_real_escape_string($_REQUEST['upload']);	
 
-					$image_path="excel/";
+					$image_path="audit_report_excel/";
 
 					$image_path=$image_path.$image;
 
@@ -84,46 +92,25 @@ $allDataInSheet = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
 
 $arrayCount = count($allDataInSheet); 
 
-$audt_code=$_REQUEST['branch_code'].date('ymd');
+/*$audt_code=$_REQUEST['branch_code'].date('ymd');
 $branch_code = $_REQUEST['branch_code']; 
-$classification= $_REQUEST['classification'];
+$classification= $_REQUEST['classification'];*/
 
-$query= "INSERT INTO `audit_physical_stock_info` (`audt_code`,`branch_code`,`entry_date`,`audit_date`,`classification`) 
-VALUES ('".$audt_code."','".$branch_code."','".date('Y-m-d')."','".date('Y-m-d')."','$classification')";
+$state_id = $_POST['state_name'];
+$branch_code = $_POST['branch_code'];
+$filename = $image;
+$category = $_POST['classification'];
+$book_qty = $_POST['book_qty'];
+$ph_qty = $_POST['ph_qty'];
+
+$query= "INSERT INTO `audit_report` (`state_id`,`branch_code`,`filename`,`category`,`uploaded_date`,`book_qty`,`ph_qty`) 
+VALUES ('".$state_id."','".$branch_code."','".$filename."','".$category."','".date('d-m-Y')."','$book_qty','$ph_qty')";
+
+//echo $query;die;
 $result= mysql_query($query) or die (mysql_error());
 
 
-for($i=1;$i<=$arrayCount;$i++){
-	
-$asset_type= strtoupper(trim($allDataInSheet[$i]["B"]));
-$ph_stock_qunatity= trim($allDataInSheet[$i]["C"]);
-
-if(($asset_type!='')&&($ph_stock_qunatity!=''))	
-{
-	$query1= "INSERT INTO `audit_physical_stock` (`audt_code`,`asset_type`,`classification`,`ph_stock_qunatity`) 
-VALUES ('".$audt_code."','".$asset_type."','".$classification."','".$ph_stock_qunatity."')";
-    $result1= mysql_query($query1) or die (mysql_error());
-	$ph_stock_id=mysql_insert_id();
-    
-	$sel_prefix=mysql_fetch_array(mysql_query("select asset_prefix from audit_asset_type where `asset_name` LIKE '$asset_type'"));
-	if($classification=='Owned'){$cls_type='O';}else{$cls_type='R';}
-	
-	for($x=0,$y=0;$x<($asset_type),$y<($ph_stock_qunatity);$x++,$y++)
-      {
-		$loc_code=substr($branch_code,3);
-		$asset_prefix=trim($sel_prefix['asset_prefix']);
-		$barcode=$asset_prefix.$cls_type.$loc_code.$x;
-		$barcode_des=$asset_prefix."-".$cls_type."-".$loc_code."-".$x;
-		
-      	$query2= "INSERT INTO `audit_physical_stock_details` (`audt_code`,`ph_stock_id`,`asset_barcode`,`barcode_details`) 
-VALUES ('".$audt_code."','".$ph_stock_id."','".$barcode."','".$barcode_des."')";
-    $result2= mysql_query($query2) or die (mysql_error());
-      }
-}
-	
-}
-
-echo "<script type='text/javascript'> window.location= 'import_physical_stock.php?msg= Excel Upload successfully.'; </script>";	
+echo "<script type='text/javascript'> window.location= 'audit_report.php?msg= Excel Upload successfully.'; </script>";	
 }
 ?>
 
@@ -141,45 +128,49 @@ $total_result = mysql_num_rows($result);
   <script type="text/javascript" src="js/validate.js"></script>  
 <script type="text/javascript">
 $(document).ready(function(){ 
-   
+    
 
-$("#mkt").validate({
-rules: {
-state_name: {
-required: true
-},
-branch_code:{
-required: true
-},
-upload:{
-required: true
-},
-classification:{
-required: true
-},
+	$("#mkt").validate({
+		rules: {
+			upload: {
+				required: true
+			},
+			classification:{
+				required: true
+			},
+			branch_code:{
+				required: true
+			},
+			book_qty:{
+				required: true
+			},
+			ph_qty:{
+				required: true
+			},
 
-
-
-}, //end rules
-messages: {
-state_name: {
-required: "<br /> Please Choose."
-},
-branch_code: {
-required: "<br /> Please Choose."
-},
-upload:{
-required: "<br /> Please Choose."
-},
-classification:{
-required: "<br /> <span>Please Tick.</span>"
-},
-
-
-} //end messages
-
-}); //end validate
- });
+		 
+		}, //end rules
+		messages: {
+			upload: {
+				required: "<br /> Please Choose."
+			},
+			classification: {
+				required: "<br /> Please Choose."
+			},
+			branch_code:{
+				required: "<br /> Please Choose."
+			},
+			book_qty:{
+				required: "<br /> Please Enter."
+			},
+			ph_qty:{
+				required: "<br /> Please Enter."
+			},
+			
+		} //end messages
+		
+	}); //end validate
+  });
 </script>
 <!----------------------validation----------------------------->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -248,10 +239,11 @@ xmlhttp.send();
       <tr>
         <td height="50" align="center"><form action="" method="post" name="mkt" id="mkt" enctype="multipart/form-data"> 
     
-    <table width="700" border="0" cellspacing="0" cellpadding="0">
+    <table width="500" border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td height="40" colspan="3" align="center" valign="middle"><p style="background-color:#fff1ab; padding:5px; text-align:center; font-family:Verdana, Geneva, sans-serif; font-size:22px; border:1px solid #EFDC86; border-radius:25px;">Import Physical Stock</p></td>
+        <td height="40" colspan="3" align="center" valign="middle"><p style="background-color:#fff1ab; padding:5px; text-align:center; font-family:Verdana, Geneva, sans-serif; font-size:22px; border:1px solid #EFDC86; border-radius:25px;">For Report Only</p></td>
         </tr>
+        
       <tr>
         <td width="137" height="35" align="left" valign="middle" class="form_txtr">&nbsp;</td>
         <td width="21" height="35" align="left" valign="middle">&nbsp;</td>
@@ -282,7 +274,11 @@ echo "<span class='errors'>Out of Stock.</span>";
 </td>
       </tr>
       
-      
+      <?php if($msg_success) { ?>
+        <tr>
+        	<td colspan="3" style="color: green;font-size: 18px;padding-left: 247px;"><?php echo $msg_success; ?></td>
+        </tr>
+        <?php } ?>
       <tr>
         <td height="35" align="left" valign="middle" class="master">State Name</td>
         <td height="35" align="left" valign="middle">:</td>
@@ -330,12 +326,22 @@ echo "<span class='errors'>Out of Stock.</span>";
         <td height="35" align="left" valign="middle"><input type="file" name="upload" class="rounded" value=""/></td>
       </tr>
       <tr>
-        <td height="35" align="left" valign="middle" class="master">Classification</td>
+        <td height="35" align="left" valign="middle" class="master">Category</td>
         <td height="35" align="left" valign="middle">:</td>
         <td height="35" align="left" valign="middle">
-        Owned<input type="radio" name="classification" value="Owned" />
-        Rented<input type="radio" name="classification" value="Rented" />
-</td>
+        <input type="radio" name="classification" value="Owned" />Owned
+        <!--<input type="radio" name="classification" value="Rented" />Rented-->
+		</td>
+      </tr>
+      <tr>
+        <td height="35" align="left" valign="middle" class="master">Book Quantity</td>
+        <td height="35" align="left" valign="middle">:</td>
+        <td height="35" align="left" valign="middle"><input type="text" name="book_qty" class="rounded" value=""/></td>
+      </tr>
+      <tr>
+        <td height="35" align="left" valign="middle" class="master">Available Qantity</td>
+        <td height="35" align="left" valign="middle">:</td>
+        <td height="35" align="left" valign="middle"><input type="text" name="ph_qty" class="rounded" value=""/></td>
       </tr>
       <tr>
         <td height="35" align="left" valign="middle">&nbsp;</td>
@@ -388,7 +394,7 @@ if(rows>2)
 </script>
 
 
-<!--<script type="application/javascript" src="js/jquery.min.js"></script>-->
+<script type="application/javascript" src="js/jquery.min.js"></script>
 <script>
 	$(document).ready(function() {
 		

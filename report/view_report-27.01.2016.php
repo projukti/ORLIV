@@ -24,26 +24,84 @@ $total_result = mysql_num_rows($result);
 
 <?php
 //echo $sql1 = "select a.classification,SUM(old_ph_stock_qunatity) as book_qty,SUM(ph_stock_qunatity) as ph_qty,b.branch_code,SUM(diff_stock_quantity) as diff_qty,b.branch_code,d.branch_name,c.filename from audit_physical_stock  as a inner join audit_physical_stock_info as b inner join audit_report as c inner join  audit_branch as d on c.branch_code=b.branch_code AND b.audt_code=a.audt_code AND c.branch_code=d.branch_code group by a.classification";
-$sql1 = "select  a.classification,
-(a.old_ph_stock_qunatity) as book_qty,
-(a.ph_stock_qunatity) as ph_qty,
-b.branch_code,c.branch_code,d.branch_name,
-c.filename
- from audit_physical_stock  as a  join audit_physical_stock_info as b ON b.audt_code=a.audt_code
+//$sql1 = "select  a.classification,
+//sum(a.old_ph_stock_qunatity) as book_qty,
+//sum(a.ph_stock_qunatity) as ph_qty,
+//b.branch_code,c.branch_code,d.branch_name,
+//c.filename
+// from audit_physical_stock  as a  right join audit_physical_stock_info as b ON b.audt_code=a.audt_code
+//   join audit_report as c on c.branch_code=b.branch_code
+//   join  audit_branch as d  ON c.branch_code=d.branch_code
+//   where a.classification='Owned' 
+//   group by b.branch_code";
+   /*$sql1 = "select  a.classification,
+sum(a.old_ph_stock_qunatity) as book_qty,
+sum(a.ph_stock_qunatity) as ph_qty,
+c.branch_code,d.branch_name,c.filename
+ from audit_physical_stock  as a right join audit_physical_stock_info as b on b.audt_code=a.audt_code
    join audit_report as c on c.branch_code=b.branch_code
-   join  audit_branch as d  ON c.branch_code=d.branch_code
+   join audit_branch as d on c.branch_code=d.branch_code
    where a.classification='Owned' 
-   group by a.classification,b.branch_code";
+   group by c.branch_code";*/
+   
+   $sql1 = "select  
+a.classification,
+c.book_qty,
+c.ph_qty,
+c.branch_code,
+d.branch_name,
+c.filename,
+c.id
+ from audit_physical_stock  as a right join audit_physical_stock_info as b on b.audt_code=a.audt_code
+   join audit_report as c on c.branch_code=b.branch_code
+   join audit_branch as d on c.branch_code=d.branch_code
+   where a.classification='Owned' 
+   group by c.branch_code";
 $result1 = mysql_query($sql1);
+?>
+
+<?php 
+if($_POST['search']=='search') { 
+$state_id = $_POST['state_name'];
+$branch_name = $_POST['branch_code'];
+$category = $_POST['category'];
+
+$sql2 = "select  
+a.classification,
+c.book_qty,
+c.ph_qty,
+c.branch_code,
+d.branch_name,
+c.filename,
+c.id
+ from audit_physical_stock  as a right join audit_physical_stock_info as b on b.audt_code=a.audt_code
+   join audit_report as c on c.branch_code=b.branch_code
+   join audit_branch as d on c.branch_code=d.branch_code
+   where a.classification='$category' and c.state_id='$state_id' and c.branch_code='$branch_name'
+   group by c.branch_code";
+   //echo $sql2;
+$result2 = mysql_query($sql2);
+
+$total_result2 = mysql_num_rows($result2);
+
+}
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Untitled Document</title>
+<title>Audit Report</title>
 
 <link href="css/globalstyle.css" rel="stylesheet" type="text/css" />
+<style>
+#delete{
+	color: green;
+    margin-left: 445px;
+    font-size: 19px;
+    font-family: initial;
+}
+</style>
 </head>
 
 <body>
@@ -52,13 +110,13 @@ $result1 = mysql_query($sql1);
     	<div class="header">
         	<div class="top_header">
             	<div class="wrapper">
-                	<a class="logout.php">Log Out</a>
+                	<a class="logout" href="logout.php">Log Out</a>
                 </div>
             </div>
             <div class="middle_header">
             	<div class="wrapper">
                     <div class="logo">
-                        <a href="">
+                        <a href="view_report.php">
                             <img src="images/logo.png" />
                         </a>
                     </div>
@@ -74,7 +132,7 @@ $result1 = mysql_query($sql1);
                 	<h2>Search And View Reports</h2>
                     
                     <ul>
-                    	<form action="" method="post" name="form1" target="_blank">
+                    	<form action="" method="post" name="form1">
                     	<li>
                         	<p>State</p>
                             <select name="state_name" id="state_name" class="rounded1" style="height:30px;">
@@ -104,7 +162,7 @@ $result1 = mysql_query($sql1);
                         </li>
                         <li>
                           <p>Category</p>
-                          <select>
+                          <select name="category">
                           	   <option value="">Select Category</option>
                                <option value="Owned">Owned</option>
                                <option value="Rented">Rented</option>
@@ -112,12 +170,21 @@ $result1 = mysql_query($sql1);
                         </li>
                         <li>
                           <button onclick="this.form.submit();">Search</button>
+                          <input type="hidden" name="search" value="search" />
                         </li>
                         </form>
                   </ul>
                 </div>
                 
                 <div class="table">
+                	<?php
+					if(isset($_GET['msg'])) { 
+					$msg_success = $_GET['msg'];
+					}
+					?>
+                    <?php if($msg_success) { ?>
+                    <div id="delete"><?php echo $msg_success; ?></div> 
+                    <?php   } ?>
                 	<table width="100%" border="1" cellspacing="0" cellpadding="0" bordercolor="#8097E4">
                     	<thead>
                           <tr>
@@ -132,7 +199,37 @@ $result1 = mysql_query($sql1);
                           </tr>
                        	</thead>
                         <tbody>
+                        
+                         
                         <?php
+						if($_POST['search']=='search') { 
+						$s2 = 1; 
+						while($row2 = mysql_fetch_array($result2)) { 
+						$book_qty_tot[]=$row2['book_qty'];
+						$ph_qty_tot[]=$row2['ph_qty'];
+						$diff_qty_tot[]=($row2['ph_qty'] - $row2['book_qty']);
+						?>
+                          <tr>
+                            <td><?php echo $s2++;?></td>
+                            <td><?php echo $row2['branch_code'];?></td>
+                            <td><?php echo $row2['branch_name'];?></td>
+                            <td><?php echo $row2['classification'];?></td>
+                            <td><?php echo $row2['book_qty'];?></td>
+                            <td><?php echo $row2['ph_qty'];?></td>
+                            <td><?php 
+							
+							echo ($row2['ph_qty'] - $row2['book_qty']);?></td>
+                            <td>
+                        <a href="../superauditor/audit_report_excel/<?php echo $row2['filename'];?>" style="float:left;margin-left:8px;"><img src="images/excel.png" height="20" width="20" alt="Download Excel" title="Download Excel"></a>
+                        <a href="delete_report.php?report_id=<?php echo $row2['id'];?>" style="float:right;margin-right:8px;"><img src="images/delete.png" height="20" width="20" alt="Delete" title="Delete"></a>
+                          
+                            </td>
+                          </tr>                         
+                         <?php } 
+						}
+						else
+						{ ?>
+						<?php
 						$s = 1; 
 						while($row = mysql_fetch_array($result1)) { 
 						$book_qty_tot[]=$row['book_qty'];
@@ -144,23 +241,28 @@ $result1 = mysql_query($sql1);
                             <td><?php echo $row['branch_code'];?></td>
                             <td><?php echo $row['branch_name'];?></td>
                             <td><?php echo $row['classification'];?></td>
-                            <td><?php //echo $row['book_qty'];?></td>
-                            <td><?php //echo $row['ph_qty'];?></td>
+                            <td><?php echo $row['book_qty'];?></td>
+                            <td><?php echo $row['ph_qty'];?></td>
                             <td><?php 
 							
-							//echo ($row['ph_qty'] - $row['book_qty']);?></td>
-                            <td align="center">
-                            <a href="../superauditor/audit_report_excel/<?php echo $row['filename'];?>"><img src="images/excel.png" height="20" width="20"></a>
+							echo ($row['ph_qty'] - $row['book_qty']);?></td>
+                            <td>
+                     <a href="../superauditor/audit_report_excel/<?php echo $row['filename'];?>" style="float:left;margin-left:8px;"><img src="images/excel.png" height="20" width="20" alt="Download Excel" title="Download Excel"></a>
+                     <a href="delete_report.php?report_id=<?php echo $row['id'];?>" style="float:right;margin-right:8px;"><img src="images/delete.png" height="20" width="20" alt="Delete" title="Delete"></a>
+                     
+                     
                             </td>
                           </tr>                         
-                         <?php } ?> 
-                          <?php /*?><tr>
-                            <td colspan="4">TOTAL</td>
-                            <td><?php //echo array_sum($book_qty_tot);?></td>
-                            <td><?php //echo array_sum($ph_qty_tot);?></td>
-                            <td><?php //echo array_sum($diff_qty_tot);?></td>
+                         <?php } ?> 	
+						<?php }
+						 ?>
+                          <tr>
+                            <td colspan="4"><strong>TOTAL</strong></td>
+                            <td><strong><?php echo array_sum($book_qty_tot);?></strong></td>
+                            <td><strong><?php echo array_sum($ph_qty_tot);?></strong></td>
+                            <td><strong><?php echo array_sum($diff_qty_tot);?></strong></td>
                             <td></td>
-                          </tr><?php */?>
+                          </tr>
                         </tbody>
                     </table>
                 </div>
@@ -169,6 +271,11 @@ $result1 = mysql_query($sql1);
     </div>
     
 <script type="application/javascript" src="js/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+$("#delete").delay(5000).fadeOut();	
+});
+</script>
 <script>
 	$(document).ready(function() {
 		

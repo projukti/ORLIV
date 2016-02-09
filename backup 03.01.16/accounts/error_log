@@ -1,1 +1,0 @@
-[01-May-2015 01:59:29] PHP Warning:  mysql_connect() [<a href='function.mysql-connect'>function.mysql-connect</a>]: Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (2) in /home6/orlivnet/public_html/accounts/connection.php on line 8

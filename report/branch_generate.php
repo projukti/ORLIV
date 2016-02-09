@@ -5,7 +5,7 @@ $state_name = $_POST['state'];
 
 //$sql = "select branch_code,branch_name from audit_branch where state_id=$state_name AND ( branch_code='LOC143' OR branch_code='LOC043' OR branch_code='LOC1193' OR  branch_code='LOC134' OR branch_code='LOC937') order by branch_name ASC";
 
-$sql = "select branch_code,branch_name from audit_branch where state_id=$state_name order by branch_name ASC";
+$sql = "select distinct branch_code,branch_name from audit_branch where state_id=$state_name order by branch_name ASC";
 
 $result = mysql_query($sql);
 
@@ -22,7 +22,7 @@ echo "<option value=''>Select Branch</option>";
 						$branch_code = $result_arr['branch_code'];
 						$branch_name = $result_arr['branch_name'];
 						
-                        echo "<option value='$branch_code'>$branch_name</option>";
+                        echo "<option value='$branch_code'>$branch_name  ($branch_code)</option>";
 					}
 				}
 			
