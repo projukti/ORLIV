@@ -1,0 +1,94 @@
+
+Call initVariables
+
+ChromeExtensionID 
+
+ctid CT3225826
+
+toolbarEnv conduit
+
+extId 
+
+type IE
+
+getCommonPath
+
+commonDataPath  C:\Documents and Settings\All Users\Application Data
+
+initVariables  IE
+
+deploymentPath  C:\Documents and Settings\All Users\Application Data
+
+readCHExtId
+
+ChromeExtensionID 
+
+Call ShouldShowRevert
+
+ShouldShowRevert IE
+
+showRevertBoxCRE FALSE
+
+showRevertBoxXPE FALSE
+
+ShowRevertBox false
+
+Call getUrlsFromServiceMap
+
+Call getDataFromSetupApi
+
+Data From Setup API: isLtr: true Language: EN
+
+Call ReadExtensionListKey
+
+Call CheckIfToShowHideDialog
+
+CheckIfToShowHideDialog Start
+
+readChromeInstalledVersion from Software\Conduit\ChromeExtData\\Repository
+
+chromeInstalledVersion 
+
+check path name : IE
+
+check if hide check box IE
+
+check if hide check box IE
+
+ieVersion 8.0.6001.18702
+
+call DllIsToolbarActuallyVisible with path C:\Documents and Settings\user\Local Settings\Application Data exe name :BitTorrentControl_v12\tbBitT.dll 
+
+DllIsToolbarActuallyVisible result 1
+
+showHideSection : true
+
+dialog URL C:\Documents and Settings\All Users\Application Data\Conduit\IE\CT3225826\UninstallDialog
+
+isChromeExtInstalledActiveProfile true
+
+deploy Dialog
+
+translationServiceUrl http://translation.toolbar.conduit-services.com/uninstall/EN
+
+htmlPath file:///C:/Documents and Settings/All Users/Application Data/Conduit/IE/CT3225826/UninstallDialog/UninstallDialog.html
+
+userSelection {"action":"ok","method":"uninstall","data":{"revertSettings":false,"action":"uninstall","extList":[]}}
+
+Call ReadConfigurationFile
+
+ReadConfigurationFile  Start
+
+configurationFilePath  C:\Documents and Settings\All Users\Application Data\Conduit\IE\CT3225826\configutaion.json
+
+runUninstallLogic  browserType IE exeName BitTorrentControl_v12\tbBitT.dll
+
+call Uninstaller with -type=IE -userSelection={"action":"ok","method":"uninstall","data":{"revertSettings":false,"action":"uninstall","extList":[]}} -ShowRevertBox=false
+
+RemoveDataFromFolder Start
+
+type IE
+
+configurationPath : C:\Documents and Settings\All Users\Application Data\Conduit\IE\CT3225826\configutaion.json
+
+RemoveFromConfigutationFile End

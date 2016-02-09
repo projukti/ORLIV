@@ -1,0 +1,33 @@
+step 1   (audit_physical_stock_info)
+
+if i will generate a barcode with excel sheet
+
+we will have to choose branch then auditor
+
+audit code will be generated
+
+audit date is missing
+
+
+step 2 (audit_physical_stock)
+
+its confusing due to product summation
+
+step 3 (audit_physical_stock_details)
+
+whole data will be inseted as per excel sheet and 
+
+barcode will be as
+
+asset prefix(missing in sheet)
+
+
+assetprefix + asset_id(product type wise)+loccode+ auto generated audit code + auto increment no  
+
+
+
+
+
+
+
+
